@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&display=swap');
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Dosis', sans-serif;
+}
+
+body, html {
+    height: 100%; 
+    margin: 0; 
+}
+
+body {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+}
+
+.contenant {
+    text-align: center; 
+}
+
+h1 {
+    margin-bottom: 40px; 
+}
+
+p {
+    margin-top: 20px; 
+    margin-bottom: 20px; 
+}
+
+.champ_entree {
+    margin-bottom: 10px; 
+}
+
+.case {
+    margin-bottom: 10px; 
+}
+
+.autre {
+    margin-top: 10px; 
+    margin-bottom: 10px; 
+}
