@@ -75,3 +75,7 @@ INSERT INTO installations(nom_installation,id_discipline,piste) VALUES
 
 INSERT INTO presence VALUES (1,1),(1,2),(1,4),(1,6),(1,7),(1,8),(1,9),(1,10),(1,12);
 -- SQLBook: Markup
+
+INSERT INTO utilisateur(nom,prenom,date_de_naissance,email,mdp) VALUES ('BENED','Julie','2005-09-17','julie.bened@utbm.fr','juliebened17'),('BEAUCHAMP','Manon','2005-01-13','manon.beauchamp@utbm.fr','manonbeauchamp13')
+
+INSERT INTO inscription(id_utilisateur,id_club,administrateur,date_adhesion,est_adherent) VALUES (1,1,0,'2024-05-09',1),(2,1,1,'2024-05-09',1)
