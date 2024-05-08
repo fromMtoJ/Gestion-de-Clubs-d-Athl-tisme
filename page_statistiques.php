@@ -10,6 +10,8 @@
 
 	<!--Base de donnée-->
 	<?php
+	error_reporting(E_ALL);
+    ini_set('display_errors', 1);
 	$bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 	?>
 
@@ -28,11 +30,10 @@
 		<div class = 'condition_stat'> 
 
 		<form action='<?php echo $_SERVER['PHP_SELF']; ?>' method='post'></form>
-		<label for='installation'>Choissisez l'installation : </label>
-		<select id ='installation' name='installations'></select>
-
+		<label for='installation'>Choissisez l'installation :  </label>
+		<select id ='installation' name='installations'>
 		<?php
-		$req = $bdd->prepare("SELECT nom_installation FROM installations INNER JOIN presence ON installations.id_installation = presence.id_installation INNER JOIN club ON presence.id_club = club.id_club WHERE club.id_club = 1;");
+		$req = $bdd->prepare("SELECT nom_installation FROM installations INNER JOIN presence ON installations.id_installation = presence.id_installation INNER JOIN clubs ON presence.id_club = clubs.id_club WHERE clubs.id_club = 1;");
 		$req->execute();
 		?>
 
@@ -49,7 +50,7 @@
 		</select>
 		</form>
 		</div>
-		<div class = 'bouton'><input type="submit" value="Choisir"></div>					
+		<div id = 'contenant_2'><div class = 'bouton'><input type="submit" value="Choisir"></div></div>					
 							
 </body>
 </html>
