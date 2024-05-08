@@ -71,4 +71,7 @@ INSERT INTO disciplines(type_discipline) VALUES ('Course'),('Saut'),('Lancer'),(
 
 INSERT INTO installations(nom_installation,id_discipline,piste) VALUES
 ('Sautoir de saut en hauteur',2,0),('Sautoir de saut en longueur',2,0),('Sautoir de triple saut',2,0),('Sautoir de saut à la perche',2,0),('Aire de lancer de disque ou marteau',3,0),('Aire de lancer de poids',3,0),('Aire de lancer de javelot',3,0),('Couloir 1',1,1),('Couloir 2',1,1),('Couloir 3',1,1),('Couloir 4',1,1),('Couloir 5 avec haies',1,1)
+
+
+INSERT INTO presence VALUES (1,1),(1,2),(1,4),(1,6),(1,7),(1,8),(1,9),(1,10),(1,12);
 -- SQLBook: Markup

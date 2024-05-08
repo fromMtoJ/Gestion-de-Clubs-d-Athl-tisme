@@ -3,7 +3,7 @@
 <head>    
 	<meta charset = 'UTF-8' /> 
 	<meta name = 'viewport' content = 'width=device-width' initial-scale='1.0'/>
-	<link rel = 'stylesheet' href = 'style_p_a.css'/>
+	<link rel = 'stylesheet' href = 'style_2.css'/>
 	<title>Profil Administateur</title>
 </head>
 <body>
@@ -15,14 +15,13 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 ?>
 
 
-
 <div id = 'sous_titre'>
 	<div id = 'sous_titre_1'><p>Tableau de bord</p></div><div id = 'sous_titre_2'><p>Tableau de bord</p></div>
 </div>
 
 
 <div id = 'titre_1'>
-<p>Tableau de bord</p>
+	<p>Tableau de bord</p>
 </div>
 
 <div class = 'contenant'>
