@@ -10,13 +10,25 @@
 
 	<!--Base de donnée-->
 	<?php
-	error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+	session_start();
+	/*error_reporting(E_ALL);
+    ini_set('display_errors', 1);*/
+	$id_utilisateur = $_SESSION['id_utilisateur'];
 	$bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 	?>
 
+	<?php
+	$req_n_p = $bdd->prepare("SELECT nom,prenom FROM utilisateur INNER JOIN inscription ON utilisateur.id_utilisateur = inscription.id_utilisateur WHERE inscription.id_utilisateur = '$id_utilisateur' AND inscription.administrateur = 1 ;");
+	$req_n_p->execute();
+	$row_n_p = $req_n_p->fetch();
+
+	$req_nc = $bdd->prepare("SELECT nom_club FROM clubs INNER JOIN inscription ON clubs.id_club = inscription.id_club INNER JOIN utilisateur ON inscription.id_utilisateur = utilisateur.id_utilisateur WHERE inscription.id_utilisateur = '$id_utilisateur' AND inscription.administrateur = 1;");
+	$req_nc->execute();
+	$row_nc = $req_nc->fetch();
+	?>
+
 	<div id = 'sous_titre'>
-		<div id = 'sous_titre_1'><p>Tableau de bord</p></div><div id = 'sous_titre_2'><p>Tableau de bord</p></div>
+		<div id = 'sous_titre_1'><?php echo $row_n_p['prenom']." ". $row_n_p['nom']?></div><div id = 'sous_titre_2'><?php echo $row_nc['nom_club']?></div>
 	</div>
 
 	<div id = 'titre_1'><p>Statistiques du club</p></div>

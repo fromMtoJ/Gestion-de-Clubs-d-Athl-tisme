@@ -7,18 +7,27 @@
 	<title>Profil Administateur</title>
 </head>
 <body>
-<?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-$bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
-    $req = $bdd->prepare("SELECT type_discipline FROM disciplines;");
-    $req->execute();
 
+<?php
+session_start();
+/*error_reporting(E_ALL);
+ini_set('display_errors', 1);*/
+$id_utilisateur = $_SESSION['id_utilisateur'];
+$bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 ?>
 
+<?php
+$req_n_p = $bdd->prepare("SELECT nom,prenom FROM utilisateur INNER JOIN inscription ON utilisateur.id_utilisateur = inscription.id_utilisateur WHERE inscription.id_utilisateur = '$id_utilisateur' AND inscription.administrateur = 1 ;");
+$req_n_p->execute();
+$row_n_p = $req_n_p->fetch();
+
+$req_nc = $bdd->prepare("SELECT nom_club FROM clubs INNER JOIN inscription ON clubs.id_club = inscription.id_club INNER JOIN utilisateur ON inscription.id_utilisateur = utilisateur.id_utilisateur WHERE inscription.id_utilisateur = '$id_utilisateur' AND inscription.administrateur = 1;");
+$req_nc->execute();
+$row_nc = $req_nc->fetch();
+?>
 
 <div id = 'sous_titre'>
-	<div id = 'sous_titre_1'><p>Tableau de bord</p></div><div id = 'sous_titre_2'><p>Tableau de bord</p></div>
+	<div id = 'sous_titre_1'><?php echo $row_n_p['prenom']." ". $row_n_p['nom']?></div><div id = 'sous_titre_2'><?php echo $row_nc['nom_club']?></div>
 </div>
 
 
@@ -83,6 +92,11 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 							<div class = 'champ'>
 							<label for='Type discipline'> Type de discipline : </label>
 								<select id='Type discipline' name='type_discipline'>
+
+								<?php
+								    $req = $bdd->prepare("SELECT type_discipline FROM disciplines;");
+									$req->execute();
+								?>
 								<?php
 								while($data = $req->fetch())
 								{
@@ -380,7 +394,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 <div class = 'contenant'>
 	<!--Statistiques-->
 	<div class = 'section'>
-		<a href ='http://localhost/projet_if3a/page_statistiques.php'><div id = 'titre_2_7'>Statistiques</div></a>
+		<a href ='page_statistiques.php'><div id = 'titre_2_7'>Statistiques</div></a>
 	</div>
 </div>
 
