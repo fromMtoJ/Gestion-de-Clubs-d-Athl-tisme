@@ -8,6 +8,8 @@
 </head>
 <body>
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
     $req = $bdd->prepare("SELECT type_discipline FROM disciplines;");
     $req->execute();

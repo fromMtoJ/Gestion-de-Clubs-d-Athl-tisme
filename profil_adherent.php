@@ -1,6 +1,7 @@
 <?php
 session_start();
 // Connexion à la base de données
+$id_utilisateur = $_SESSION['id_utilisateur'];
 $bdd = new PDO('mysql:host=localhost;dbname=donnees', 'root', '');
 ?>
 <!DOCTYPE html>
@@ -80,5 +81,16 @@ $bdd = new PDO('mysql:host=localhost;dbname=donnees', 'root', '');
         <br><br>
         <input type="submit" value="Réserver">
     </form>
+    
+    <?php
+    $req = $bdd->prepare("SELECT administrateur FROM inscription WHERE id_utilisateur = $id_utilisateur;");
+    $req->execute();
+    
+    while ($row = $req->fetch()) {
+        if  ($row['administrateur'] === 1) {
+            echo '<a href="profil_admin.php">Tableau de bord</a>';
+        }
+    }
+    ?>
 </body>
 </html>
