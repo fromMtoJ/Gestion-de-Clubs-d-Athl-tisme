@@ -93,8 +93,4 @@ $bdd = new PDO('mysql:host=localhost;dbname=donnees', 'root', '');
     }
     ?>
 </body>
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> 01d851c5ace7b07a8bc5d3bbbeef8ab4be5b3f5c
