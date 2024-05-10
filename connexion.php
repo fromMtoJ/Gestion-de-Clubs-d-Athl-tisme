@@ -9,7 +9,7 @@
 <body>
 <div class ='contenant'>
 	<h1>Se connecter</h1> 
-	<p>Vous n'avez pas de compte ? <a href = http://localhost/projet_if3a/inscription.php>S'inscrire</a></p>
+	<p>Vous n'avez pas de compte ? <a href = "inscription.php">S'inscrire</a></p>
 	<div class = 'formulaire'>
 		<form method = 'post' action = 'action_connexion.php'>
 			<div class = 'champ entree'>
