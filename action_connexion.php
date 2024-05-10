@@ -26,4 +26,4 @@ if ($user) {
     // Si l'utilisateur n'existe pas, afficher un message d'erreur ou rediriger vers une page de connexion avec un message d'erreur
     echo "Identifiants incorrects";
 }
-?>
+
