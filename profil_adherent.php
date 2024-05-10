@@ -10,8 +10,18 @@ $bdd = new PDO('mysql:host=localhost;dbname=donnees', 'root', '');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réservation</title>
+    <link rel = 'stylesheet' href = 'style_2.css'/>
 </head>
-<body>
+<?php
+        $req_n_p = $bdd->prepare("SELECT nom,prenom FROM utilisateur INNER JOIN inscription ON utilisateur.id_utilisateur = inscription.id_utilisateur WHERE inscription.id_utilisateur = '$id_utilisateur' ;");
+            $req_n_p->execute();
+            $row_n_p = $req_n_p->fetch(); 
+    ?>
+
+<div id = 'sous_titre'>
+    <div id = 'sous_titre_1'><?php echo $row_n_p['prenom']." ". $row_n_p['nom']?></div>
+</div>
+
     <h2>Réservation</h2>
 
 
@@ -37,7 +47,7 @@ $bdd = new PDO('mysql:host=localhost;dbname=donnees', 'root', '');
 
         <!-- Menu déroulant pour sélectionner la discipline -->
         Discipline :
-        <select name="disciplines" id="disciplines">
+        <select name="disciplines" id="disciplines" onchange="this.form.submit()">
             <option value="">Sélectionnez une discipline</option>
             <?php
             // Lorsque le formulaire est soumis, récupérez les disciplines associées au club sélectionné
@@ -52,30 +62,38 @@ $bdd = new PDO('mysql:host=localhost;dbname=donnees', 'root', '');
                     WHERE c.nom_club = ?");
                 $query->execute(array($club_selected));
                 while ($discipline = $query->fetch()) {
+                    print_r($discipline);
                     $nom_discipline = $discipline["type_discipline"];
                     echo "<option value='$nom_discipline'>$nom_discipline</option>";
                 }
+                
             }
+
             ?>
         </select>
+        
         installations : 
-        <select name="installations" id="installations">
+        <select name="installations" id="installations" onchange="this.form.submit()">
             <option value="">Séléctionnez une installation</option>
             <?php
             if (isset($_POST['disciplines']) && !empty($_POST['disciplines'])){
-                $discpline_selected = $_POST["disciplines"];
+
+                $discipline_selected = $_POST["disciplines"];
                 $query = $bdd->prepare("
                 SELECT nom_installation FROM installations i
                 INNER JOIN disciplines d ON i.id_discipline = d.id_discipline
                 WHERE d.type_discipline = ?
-                
                 ");
-                $query->execute(array($discpline_selected));
+                $query->execute(array($discipline_selected));
                 while ($installation = $query->fetch()){
+                    
                     $nom_installation = $installation["nom_installation"];
+                    
                     echo "<option value = '$nom_installation'>$nom_installation</option>";
                 }
-            }
+            }else
+            
+            
             ?>
         </select>
         <br><br>
@@ -94,3 +112,4 @@ $bdd = new PDO('mysql:host=localhost;dbname=donnees', 'root', '');
     ?>
 </body>
 </html>
+
