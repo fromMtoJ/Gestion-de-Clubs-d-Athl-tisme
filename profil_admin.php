@@ -412,16 +412,16 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 							<label for="date_debut_b">Date de début :</label>
 							<input type="date" id="date_debut_b" name="date_debut_b" required>
 
-							<label for="heure_debut_b">Heure de début :</label>
+							<label for="heure_debut_b">Heure de fin :</label>
 							<select id="heure_debut_b" name="heure_debut_b" required>
 								<?php
-								$heure_debut_db = strtotime($heure_debut);
-								$heure_fin_db = strtotime($heure_fin) - 3600; 
-								while ($heure_debut_db <= $heure_fin_db) {
-									for ($minute_db = 0; $minute_db < 60; $minute_db += 15) {
-										echo "<option value='" . date('H:i', $heure_debut_db + $minute_db * 60) . "'>" . date('H:i', $heure_debut_db + $minute_b * 60) . "</option>";
+								$heure_debut_fd = strtotime($heure_debut);
+								$heure_fin_fd = strtotime($heure_fin) - 3600; 
+								while ($heure_debut_fd <= $heure_fin_fd) {
+									for ($minute_fd = 0; $minute_fd < 60; $minute_fd += 15) {
+										echo "<option value='" . date('H:i', $heure_debut_fd + $minute_fd * 60) . "'>" . date('H:i', $heure_debut_fd + $minute_fd * 60) . "</option>";
 									}
-									$heure_debut_db += 900; 
+									$heure_debut_fd += 900;
 								}
 								?>
 							</select>
