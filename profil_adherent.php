@@ -89,10 +89,12 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
             $query->execute(array($discipline_selected));
             while ($installation = $query->fetch()) {
                 $nom_installation = $installation["nom_installation"];
-                echo "<option value='$nom_installation'>$nom_installation</option>";
+                echo "<option value='$nom_installation'";
+                if (isset($_POST['installations']) && $_POST['installations'] == $nom_installation) {
+                    echo " selected";
+                }
+                echo ">$nom_installation</option>";
             }
-        } else {
-            echo "pas de discipline enregistré";
         }
         ?>
     </select>
@@ -144,6 +146,14 @@ $query = $bdd->prepare("SELECT heure_debut_reservation, heure_fin_reservation FR
 INNER JOIN installations i ON i.id_installation = r.id_installation WHERE nom_installation = ? AND blocage = ?");
 $query->execute([$installation, 1]);
 $heures = $query->fetchAll();
+// recuperer la date selectionner dans le calendrier et bloquer en consequence les horaires du jours
+
+$query = $bdd->prepare("SELECT heure_ouverture, heure_fermeture FROM clubs
+WHERE nom_club= ?");
+$query->execute([$club]);
+$heure_club = $query->fetch();
+$heure_ouverture = $heure_club['heure_ouverture'];
+$heure_fermeture = $heure_club['heure_fermeture'];
 
 ?>
 <h2>Sélection de date et d'horaire</h2>
@@ -162,7 +172,7 @@ $heures = $query->fetchAll();
 <script>
     // Tableau des dates à désactiver
     var liste_dates_totales = <?php echo json_encode($liste_dates_totales); ?>;
-
+    
     // Initialisation de Flatpickr
     flatpickr("#date", {
         enableTime: false,
@@ -170,6 +180,22 @@ $heures = $query->fetchAll();
         minDate: "today",
         defaultDate: "today",
         disable: liste_dates_totales
+    });
+
+</script>
+    
+<script>
+    // Récupération des horaires d'ouverture et de fermeture du club depuis PHP
+    var heureOuverture = "<?php echo $heure_ouverture; ?>";
+    var heureFermeture = "<?php echo $heure_fermeture; ?>";
+
+    // Initialisation de Flatpickr pour le champ d'heure
+    flatpickr("#heure", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        minTime: heureOuverture,
+        maxTime: heureFermeture
     });
 </script>
 
