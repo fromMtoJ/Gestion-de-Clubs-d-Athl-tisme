@@ -123,5 +123,11 @@ while ($row = $req->fetch()) {
     }
 }
 ?>
+    <form action="action_reservation.php" method="POST">
+        Date de réservation: <input type="date" name="date_reservation" required><br>
+        Heure de début: <input type="time" name="heure_debut" required><br>
+        Heure de fin: <input type="time" name="heure_fin" required><br>
+        <input type="submit" value="Réserver">
+
 </body>
 </html>
