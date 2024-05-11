@@ -188,10 +188,10 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 </div>
 
 <div class = 'contenant'>
-	<!--Ajouter une installation-->
+	<!--Ajouter une installation existante-->
 	<div class = 'section'>
 			<div id = 'titre_2_3'>
-			<p>Ajouter une installation </p>
+			<p>Ajouter une installation existante</p>
 			</div>
 
 				<div id = 'action_3'>
@@ -255,6 +255,67 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 				</div>
 	</div>
 
+	<!--Créer et ajouter une installation -->
+	<div class = 'section'>
+			<div id = 'titre_2_8'>
+						<p>Créer et ajouter une installation </p>
+			</div>
+
+				<div id = 'action_8'>
+							<form action='profil_admin.php' method='post'>
+							<div class='champ'>
+								<label for='Nom'>Nom de l'installation : </label> <input id='Nom' name='nom_i_c' type='text' size='60'
+									placeholder='Sautoir de triple saut/saut en longueur' required='required' />
+							</div>
+
+							<?php
+							$req_t_d_6 = $bdd->prepare("SELECT type_discipline FROM disciplines;");
+							$req_t_d_6->execute();
+							$options = "<option value=''>Choissisez un type de discipline</option>";
+							while ($row = $req_t_d_6->fetch()) {
+								$options .= "<option value='" . $row['type_discipline'] . "'>" . $row['type_discipline'] . "</option>";
+							}
+							?>
+
+							<div class='champ'>
+								<label for='type discipline'> Type de discipline : </label>
+								<select id='type discipline' name='type_discipline'>
+									<?php echo $options; ?>
+								</select>
+							</div>
+
+							<div class='champ'>
+								<div class='champ'><label for='Emplacement'> Emplacement : </label></div>
+								<div class='champ'><input id='bouton 2' name='emplacement' type='radio' /><label for='Emplacement'> Hors-Piste </label></div>
+							</div>
+
+							<div class='bouton'><input type='submit' name='créer' value='Créer l&#39;installation'/></div>
+							</form>
+
+							<?php
+							if  (isset($_POST['créer'])) {
+								$nom_c_i = $_POST['nom_i_c'];
+								$type_discipline = $_POST['type_discipline'];
+								$req_i_t2 = $bdd->prepare("SELECT id_discipline FROM disciplines WHERE type_discipline = '$type_discipline';");
+								$req_i_t2->execute();
+								$id_discipline = $req_i_t2->fetchColumn();
+								$hors_piste = isset($_POST['emplacement']) ? 1 : 0;
+								$req_c_i = $bdd->prepare("INSERT INTO installations(nom_installation, id_discipline, hors_piste) VALUES (?, ?, ?)");
+    							$req_c_i->execute([$nom_c_i, $id_discipline, $hors_piste]);
+								$id_installation_c = $bdd->lastInsertId();
+								$req_a_i_2 = $bdd->prepare("INSERT INTO presence VALUES ($id_club , $id_installation_c);");
+								if ($req_c_i && $req_a_i_2->execute()) {
+									echo "<script>alert('Installation crée et ajoutée avec succès !');</script>";
+								} else {
+									echo "<script>alert('L\'installation n\'a pas pu être crée.');</script>";
+								}
+							}
+							?>		
+				</div>
+
+			
+	</div>
+
 	<!--Modifier les informations d'une installation-->
 	<div class = 'section'>
 			<div id = 'titre_2_4'>
@@ -280,21 +341,25 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					</div>
 
 					<div class='bouton'><input type="submit" name="choix" value="Choisir"></div>
+					
 				</form>
 
 				<?php
 				if (isset($_POST['choix'])) {
 					var_dump($_POST['installation']);
-					$id_installation = $_POST['installation'];
+					$installation = $_POST['installation'];
 				} else {
-					$id_installation = null; 
+					$installation = null; 
 				}
 				?>
 
 				<div class='champ'>Modifier :</div>
 
 				<form action='profil_admin.php' method='post'>
-
+				<?php
+				//pour garder la valeur du premier formulaire
+				echo "<input type='hidden' name='id_installation' value='$installation' />";
+				?>
 				<div class='champ'>
 					<label for='Nom'>Nom de l'installation : </label> <input id='Nom' name='nom_i' type='text' size='60'
 						placeholder='Sautoir de triple saut/saut en longueur' required='required' />
@@ -326,21 +391,19 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 
 				<?php
 				if  (isset($_POST['modifier'])) {
+					$id_installation = $_POST['id_installation'];
 					$nom_i = $_POST['nom_i'];
 					$type_discipline = $_POST['type_discipline'];
 					$req_i_t = $bdd->prepare("SELECT id_discipline FROM disciplines WHERE type_discipline = '$type_discipline';");
 					$req_i_t->execute();
 					$id_discipline = $req_i_t->fetchColumn();
 					$hors_piste = isset($_POST['emplacement']) ? 1 : 0;
-					$req_m_i = $bdd->prepare("UPDATE installations SET nom_installation = '$nom_i', id_discipline = $id_discipline, hors_piste = $hors_piste WHERE id_installation = 1;");
-					echo $req_m_i->queryString;
+					$req_m_i = $bdd->prepare("UPDATE installations SET nom_installation = '$nom_i', id_discipline = $id_discipline, hors_piste = $hors_piste WHERE id_installation = $id_installation;");
 					if ($req_m_i->execute()) {
 						echo "<script>alert('Installation modifiée avec succès !');</script>";
 					} else {
 						echo "<script>alert('L\'installation n\'a pas pu être modifiée.');</script>";
 					}
-				}else {
-					echo "Marche pas";
 				}
 
 				?>
@@ -452,15 +515,13 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 						$heure_debut_b = $_POST['heure_debut_b'];
 						$date_fin_b = $_POST['date_fin_b'];
 						$heure_fin_b = $_POST['heure_fin_b'];
-						$req_b_i = $bdd->prepare("INSERT INTO reservation VALUES ($id_installation_b,$id_utilisateur, $id_club, '$date_debut_b', '$heure_debut_b', '$date_fin_b', '$heure_fin_b');");
+						$req_b_i = $bdd->prepare("INSERT INTO reservation VALUES ($id_installation_b,$id_utilisateur, $id_club, '$date_debut_b', '$heure_debut_b', '$date_fin_b', '$heure_fin_b',1);");
 						if ($req_b_i->execute()) {
 							echo "<script>alert('Installation bloquée avec succès !');</script>";
 						} else {
 							echo "<script>alert('L'installation n'a pas pu être bloquée.');</script>";
 							}
-					} else {
-						echo "<script>alert('L'ooooo n'a pas pu être bloquée.');</script>";
-					}
+					} 
 					?>
 							
 				</div>
@@ -536,98 +597,229 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 <div class = 'contenant'>
 	<!--Annuler une réservation-->
 	<div class = 'section'>
-				<div id = 'titre_2_7'>
-				<p>Annuler une réservation</p>
-				</div>
+	
+		<div id = 'titre_2_7'>
+		<p>Annuler une réservation</p>
+		</div>
 
-				<div id = 'action_7'>
-				<div class='champ'>Choisir une installation :</div>
-					<form action='profil_admin.php' method='post'>
-						<?php	
-						$req_t_d_4 = $bdd->prepare("SELECT type_discipline FROM disciplines;");
-						$req_t_d_4->execute();
-						$options = "<option value=''>Choissisez un type de discipline</option>";
-						while ($row = $req_t_d_4->fetch()) {
-							$options .= "<option value='" . $row['type_discipline']."'>" . $row['type_discipline']."</option>";
-						}
-						?>
+		<div id = 'action_7'>
+			<div class='champ'>Choisir une installation :</div>
+				<form action='profil_admin.php' method='post'>
+					<?php	
+					
 
-						<div class = 'champ'>
-							<label for='type discipline'> Type de discipline : </label>
-							<select id='type discipline' name='type_discipline'>
-								<?php echo $options; ?>
-							</select>
-						</div>
+					$req_t_d_4 = $bdd->prepare("SELECT type_discipline FROM disciplines;");
+					$req_t_d_4->execute();
+					$options = "<option value=''>Choissisez un type de discipline</option>";
+					while ($row = $req_t_d_4->fetch()) {
+						$options .= "<option value='" . $row['type_discipline']."'>" . $row['type_discipline']."</option>";
+					}
+					?>
 
-						<div class ='bouton'><input type="submit" name="filtre" value="Filtrer"></div>
-						</form>	
-							
-						<?php
-						if (isset($_POST['filtre'])) {
-                            $discipline = $_POST['type_discipline'];
-                                $req_filtre_b = $bdd->prepare("SELECT installations.id_installation,nom_installation FROM installations JOIN disciplines ON installations.id_discipline = disciplines.id_discipline INNER JOIN presence ON installations.id_installation = presence.id_installation WHERE type_discipline = '$discipline' AND presence.id_club = $id_club;");
-                                $req_filtre_b->execute();
+					<div class = 'champ'>
+						<label for='type discipline'> Type de discipline : </label>
+						<select id='type discipline' name='type_discipline'>
+							<?php echo $options; ?>
+						</select>
+					</div>
 
-                                $options = "<option value=''>Sélectionnez une installation</option>";
-                                while ($row = $req_filtre_b->fetch()) {
-                                    $options .= "<option value='" . $row['id_installation'] . "'>" . $row['nom_installation'] . "</option>";
-                                }
-                            } else {
-                                $discipline = "";
-                                $options = "<option value=''>Sélectionnez une installation</option>";
-                            }
-                    	?>
-						<form action='profil_admin.php' method='post'>
-                            <label for="installation">Installation :</label>
-								<select id="installation" name="installation">
-									<?php echo $options; ?>
-								</select>
+					<div class ='bouton'><input type="submit" name="filtre_a" value="Filtrer"></div>
+				</form>    
 
-						<div class='bouton'><input type="submit" name="choix_3" value="Choisir"></div>
-						</form>
-						
-						<?php
+				<?php
+				if (isset($_POST['filtre_a'])) {
+					$discipline = $_POST['type_discipline'];
+					$req_filtre_a = $bdd->prepare("SELECT installations.id_installation,nom_installation FROM installations JOIN disciplines ON installations.id_discipline = disciplines.id_discipline INNER JOIN presence ON installations.id_installation = presence.id_installation WHERE type_discipline = :discipline AND presence.id_club = :id_club;");
+					$req_filtre_a->bindParam(':discipline', $discipline);
+					$req_filtre_a->bindParam(':id_club', $id_club);
+					$req_filtre_a->execute();
+
+					$options = "<option value=''>Sélectionnez une installation</option>";
+					while ($row = $req_filtre_a->fetch()) {
+						$options .= "<option value='" . $row['id_installation'] . "'>" . $row['nom_installation'] . "</option>";
+					}
+				} else {
+					$discipline = "";
+					$options = "<option value=''>Sélectionnez une installation</option>";
+				}
+				?>
+				<form action='profil_admin.php' method='post'>
+					<label for="installation">Installation :</label>
+					<select id="installation" name="installation">
+						<?php echo $options; ?>
+					</select>
+					<div class='bouton'><input type="submit" name="choix_3" value="Choisir"></div>
+				</form>
+
+				<!--Affichage des réservations-->
+				<form action="profil_admin.php" method="get">
+					<?php
 						if (isset($_POST['choix_3'])) {
 							$id_installation = $_POST['installation'];
-						}	
-						?>
+							$sql_installation = "SELECT nom_installation FROM installations WHERE id_installation = :installation";
+							$stmt_installation = $bdd->prepare($sql_installation);
+							$stmt_installation->bindParam(':installation', $id_installation);
+							$stmt_installation->execute();
+							$installation_name = $stmt_installation->fetchColumn();
+							$_SESSION['installation_name'] = $installation_name;
+							}
+					?>
+					<label for="week">Choisir une semaine :</label>
+					<input type="week" name="week" id="week" value="<?php echo date('Y-\WW'); ?>" />
+					<input type="submit" name="valider" value="Valider" />
+				</form>
 
-<table>
-  <thead>
-    <tr>
-      <?php
-      $jours_semaine = array("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche");
+				<?php
+				if (isset($_GET['valider'])) {
+					$annee = date('Y');
+					$semaine_choisie = $_GET['week'] ?? date('oW');
 
-      foreach ($jours_semaine as $jour) {
-        echo "<th>" . $jour . "</th>";
-      }
-      ?>
-    </tr>
-  </thead>
-  <tbody>
-    <?php
-    $heure_ouverture = 8;  // Replace with actual opening hour
-    $heure_fermeture = 20;  // Replace with actual closing hour
-    $interval = 15;       // Replace with actual time interval in minutes
+					if (preg_match('/^(\d{4})(\d{2})$/', $semaine_choisie, $matches)) {
+						$annee_semaine = $matches[1];
+						$num_semaine = $matches[2];
+					} else {
+						$annee_semaine = $annee;
+						$num_semaine = substr($semaine_choisie, -2);
+						}
 
-    for ($heure = $heure_ouverture; $heure <= $heure_fermeture; $heure++) {
-		for ($minute = 0; $minute < 60; $minute += $interval) {
-		  echo "<tr>";
-		  echo "<td>" . sprintf("%02d", $heure) . ":" . sprintf("%02d", $minute) . "</td>";
-		  echo "</tr>";
-		}
-	  }
-	
-    ?>
-  </tbody>
-</table>
-						
-							</div>
-							
-						
+					$j_debut_semaine = date('Y-m-d', strtotime($annee_semaine . 'W' . $num_semaine . '1'));
+					$j_fin_semaine = date('Y-m-d', strtotime($annee_semaine . 'W' . $num_semaine . '7'));
 
+					echo "<div class = 'champ'>Réservations de l'installation : " . $_SESSION['installation_name'] . "</div>";
+					echo "Semaine du " . date('d/m', strtotime($j_debut_semaine)) . " au " . date('d/m', strtotime($j_fin_semaine));
 				
-	</div>
+
+					// Generate the time slots
+					$time_slots = [];
+					$start_time = strtotime($heure_debut); // Convert the time string to a timestamp
+					$end_time = strtotime($heure_fin); // Convert the time string to a timestamp
+					$interval = 15 * 60; // 15 minutes
+					$current_time = $start_time;
+					while ($current_time <= $end_time) {
+						$time_slots[] = date('H:i', $current_time);
+						$current_time += $interval;
+					}
+
+					// Query the reservations for the selected installation and week
+					$sql = "SELECT date_debut_reservation, heure_debut_reservation, date_fin_reservation, heure_fin_reservation
+							FROM reservation
+							WHERE id_installation = :installation_id
+						AND date_debut_reservation BETWEEN :start_date AND :end_date
+						AND id_club = :id_club";
+					$stmt = $bdd->prepare($sql);
+					$stmt->bindParam(':installation_id', $id_installation);
+					$stmt->bindParam(':start_date', $j_debut_semaine);
+					$stmt->bindParam(':end_date', $j_fin_semaine);
+					$stmt->bindParam(':id_club', $id_club);
+					$stmt->execute();
+					$reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					foreach ($reservations as $item) {
+						echo $item . ' '; // Output: apple banana orange
+					}
+
+					// Create the timetable
+					$timetable = [];
+					$current_date = $j_debut_semaine;
+					while ($current_date <= $j_fin_semaine) {
+						$timetable[$current_date] = array_fill_keys($time_slots, 'o');
+						$current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
+					}
+
+					// Mark the reserved time slots in the timetable
+					foreach ($reservations as $reservation) {
+						$start_datetime = $reservation['date_debut_reservation'] . ' ' . $reservation['heure_debut_reservation'];
+						$end_datetime = $reservation['date_fin_reservation'] . ' ' . $reservation['heure_fin_reservation'];
+						$start_time = strtotime($start_datetime);
+						$end_time = strtotime($end_datetime);
+						$current_time = $start_time;
+						while ($current_time < $end_time) {
+							$current_date = date('Y-m-d', $current_time);
+							$current_slot = date('H:i', $current_time);
+							$timetable[$current_date][$current_slot] = 'x';
+							$current_time += $interval;
+						}
+					}
+
+					// Display the timetable
+					echo "<table>";
+					echo "<tr><th>Time</th>";
+					foreach ($timetable as $date => $slots) {
+						$dayOfWeek = date('N', strtotime($date));
+						$dayOfWeekName = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][$dayOfWeek - 1];
+						echo "<th>$dayOfWeekName " . date('d/m', strtotime($date)) . "</th>";
+					}
+					echo "</tr>";
+					foreach ($time_slots as $time) {
+						echo "<tr><td>$time</td>";
+						foreach ($timetable as $date => $slots) {
+							echo "<td>{$slots[$time]}</td>";
+						}
+						echo "</tr>";
+						}
+						echo "</table>";
+				
+				}
+				
+				?>
+				<form action = 'profil_admin.php' method = 'post'>
+					<label for="date_debut_a">Date de début :</label>
+					<input type="date" id="date_debut_a" name="date_debut_a" required>
+
+					<label for="heure_debut_a">Heure de fin :</label>
+					<select id="heure_debut_a" name="heure_debut_a" required>
+						<?php
+						$heure_debut_da = strtotime($heure_debut);
+						$heure_fin_da = strtotime($heure_fin) - 3600; 
+						while ($heure_debut_da <= $heure_fin_da) {
+							for ($minute_da = 0; $minute_da < 60; $minute_da += 15) {
+								echo "<option value='" . date('H:i', $heure_debut_da + $minute_da * 60) . "'>" . date('H:i', $heure_debut_da + $minute_da * 60) . "</option>";
+							}
+							$heure_debut_da += 900;
+						}
+						?>
+					</select>
+					
+					<label for="date_fin_a">Date de fin :</label>
+					<input type="date" id="date_fin_a" name="date_fin_a" required>
+					
+					<label for="heure_fin_a">Heure de fin :</label>
+					<select id="heure_fin_a" name="heure_fin_a" required>
+						<?php
+						$heure_debut_fa = strtotime($heure_debut) +900;
+						$heure_fin_fa = strtotime($heure_fin) - 3600; 
+						while ($heure_debut_fa <= $heure_fin_fa + 900) {
+							for ($minute_fa = 0; $minute_fa < 60; $minute_fa += 15) {
+								echo "<option value='" . date('H:i', $heure_debut_fa + $minute_fa * 60) . "'>" . date('H:i', $heure_debut_fa + $minute_fa * 60) . "</option>";
+							}
+							$heure_debut_fa += 900;
+						}
+						?>
+					</select>
+				<input type="submit" name="annuler_reservation" value="Annuler la réservation">
+				</form>
+				<?php
+				if (isset($_POST['annuler_reservation'])) {
+					$date_debut = $_POST['date_debut_a'];
+					$heure_debut = $_POST['heure_debut_a'];
+					$date_fin = $_POST['date_fin_a'];
+					$heure_fin = $_POST['heure_fin_a'];
+
+					$sql_delete_reservation = "DELETE FROM reservation WHERE id_club = :id_club AND id_installation = :id_installation AND date_debut_reservation = :date_debut AND heure_debut_reservation = :heure_debut AND date_fin_reservation = :date_fin AND heure_fin_reservation = :heure_fin";
+					$stmt_delete_reservation = $bdd->prepare($sql_delete_reservation);
+					$stmt_delete_reservation->bindParam(':id_club', $id_club);
+					$stmt_delete_reservation->bindParam(':id_installation', $id_installation);
+					$stmt_delete_reservation->bindParam(':date_debut', $date_debut);
+					$stmt_delete_reservation->bindParam(':heure_debut', $heure_debut);
+					$stmt_delete_reservation->bindParam(':date_fin', $date_fin);
+					$stmt_delete_reservation->bindParam(':heure_fin', $heure_fin);
+					if ($stmt_delete_reservation->execute()) {
+						echo "<script>alert('Réservation annulée avec succès !');</script>";
+					} else {
+						echo "<script>alert('La réservation n'a pas pu être annulée.');</script>";
+						}
+				}
+				?>
+		</div>
 </div>
 
 <div class = 'contenant'>
