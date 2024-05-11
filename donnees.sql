@@ -8,6 +8,8 @@ USE donnees;
 CREATE TABLE IF NOT EXISTS clubs (
     id_club INT PRIMARY KEY AUTO_INCREMENT,
     nom_club VARCHAR(25)
+    `heure_ouverture` time DEFAULT NULL,
+    `heure_fermeture` time DEFAULT NULL,
 );
 CREATE TABLE IF NOT EXISTS disciplines(
     id_discipline INT PRIMARY KEY AUTO_INCREMENT,
@@ -57,8 +59,9 @@ CREATE TABLE IF NOT EXISTS reservation (
     id_utilisateur INT, 
     FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur),
     date_reservation DATE, 
-    heure_debut TIME, 
-    heure_fin TIME
+    heure_debut_reservation TIME, 
+    heure_fin_reservation TIME
+    blocage BOOLEAN DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS presence (
