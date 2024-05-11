@@ -326,14 +326,13 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 
 				<?php
 				if  (isset($_POST['modifier'])) {
-					$id_installation = $_POST['installation'];
 					$nom_i = $_POST['nom_i'];
 					$type_discipline = $_POST['type_discipline'];
 					$req_i_t = $bdd->prepare("SELECT id_discipline FROM disciplines WHERE type_discipline = '$type_discipline';");
 					$req_i_t->execute();
 					$id_discipline = $req_i_t->fetchColumn();
 					$hors_piste = isset($_POST['emplacement']) ? 1 : 0;
-					$req_m_i = $bdd->prepare("UPDATE installations SET nom_installation = '$nom_i', id_discipline = $id_discipline, hors_piste = $hors_piste WHERE id_installation = $id_installation;");
+					$req_m_i = $bdd->prepare("UPDATE installations SET nom_installation = '$nom_i', id_discipline = $id_discipline, hors_piste = $hors_piste WHERE id_installation = 1;");
 					echo $req_m_i->queryString;
 					if ($req_m_i->execute()) {
 						echo "<script>alert('Installation modifiée avec succès !');</script>";
@@ -491,11 +490,11 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 							</select>
 						</div>
 
-						<div class ='bouton'><input type="submit" name="filtre" value="Filtrer"></div>
+						<div class ='bouton'><input type="submit" name="filtre_supprimer" value="Filtrer"></div>
 						</form>	
 							
 						<?php
-						if (isset($_POST['filtre'])) {
+						if (isset($_POST['filtre_supprimer'])) {
                             $discipline = $_POST['type_discipline'];
                                 $req_filtre = $bdd->prepare("SELECT installations.id_installation,nom_installation FROM installations JOIN disciplines ON installations.id_discipline = disciplines.id_discipline INNER JOIN presence ON installations.id_installation = presence.id_installation WHERE type_discipline = '$discipline' AND presence.id_club = $id_club;");
                                 $req_filtre->execute();
@@ -515,11 +514,11 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 									<?php echo $options; ?>
 								</select>
 
-						<div class='bouton'><input type="submit" name="choix" value="Supprimer l&#39installation"></div>
+						<div class='bouton'><input type="submit" name="choix_suppr" value="Supprimer l&#39installation"></div>
 					</form>	
 							
 					<?php
-					if  (isset($_POST['choix'])) {
+					if  (isset($_POST['choix_suppr'])) {
 						$id_installation = $_POST['installation'];
 						$req_s_i = $bdd->prepare("DELETE FROM presence WHERE id_club = $id_club AND id_installation = $id_installation;");
 						if ($req_s_i->execute()) {
