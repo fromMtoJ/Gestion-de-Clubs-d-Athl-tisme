@@ -7,7 +7,7 @@ session_unset();
 // Détruire la session
 session_destroy();
 
-// Rediriger l'utilisateur vers la page de connexion ou une autre page
+// Rediriger l'utilisateur vers la page de depart
 header("Location: page_depart.php");
 exit();
 

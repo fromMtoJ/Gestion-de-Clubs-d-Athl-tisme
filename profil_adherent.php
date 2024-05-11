@@ -34,11 +34,15 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.6/flatpickr.min.css">
 </head>
 <body>
+    <!-- permet de poster les infos sur la meme page après chaque changement d'état -->    
     <form id="reservationForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+
     <span>Club :</span>
-    <select name="clubs" id="clubs" onchange="this.form.submit()">
+    <select name="clubs" id="clubs" onchange="this.form.submit()"> 
+     <!-- gère le changement d'état -->    
         <option value="">Sélectionnez un club</option>
         <?php
+        //affichage dynamique des clubs dont l'utilisateur à acces
         $query = $bdd->prepare("SELECT nom_club FROM clubs c INNER JOIN inscription i ON c.id_club = i.id_club WHERE id_utilisateur = ?");
         $query->execute(array($id_utilisateur));
         while ($club = $query->fetch()) {
@@ -55,6 +59,7 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
     <select name="disciplines" id="disciplines" onchange="this.form.submit()">
         <option value="">Sélectionnez une discipline</option>
         <?php
+        // affichage dynamique des dispclines presentent dans le club selectionné
         if (isset($_POST['clubs']) && !empty($_POST['clubs'])) {
             $club_selected = $_POST['clubs'];
             $query = $bdd->prepare("
@@ -80,6 +85,7 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
     <select name="installations" id="installations">
         <option value="">Séléctionnez une installation</option>
         <?php
+        // affichage dynamique des installations disponible en fonction de la discipline choisie
         if (isset($_POST['disciplines']) && !empty($_POST['disciplines'])) {
             $discipline_selected = $_POST["disciplines"];
             $query = $bdd->prepare("
@@ -104,11 +110,16 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
    
     
     <?php
+    // valeur pretes a etre recuperer evite les bugs de variable indefini
+$club ="";
+$discipline = "";
+$installation = "";    
+if (isset($_POST["clubs"], $_POST["disciplines"], $_POST["installations"])) {
+    
     $club = $_POST["clubs"];
     $discipline = $_POST["disciplines"];
     $installation = $_POST["installations"];
-    
-
+}    
 ?><?php
 // Fonction pour récupérer les dates bloquées depuis la base de données
 $query = $bdd->prepare("SELECT date_debut_reservation, date_fin_reservation FROM reservation r 
@@ -146,34 +157,71 @@ $query = $bdd->prepare("SELECT heure_debut_reservation, heure_fin_reservation FR
 INNER JOIN installations i ON i.id_installation = r.id_installation WHERE nom_installation = ? AND blocage = ?");
 $query->execute([$installation, 1]);
 $heures = $query->fetchAll();
-// recuperer la date selectionner dans le calendrier et bloquer en consequence les horaires du jours
+// recuperer la date selectionner dans le calendrier 
 
-$query = $bdd->prepare("SELECT heure_ouverture, heure_fermeture FROM clubs
-WHERE nom_club= ?");
+$query = $bdd->prepare("SELECT heure_ouverture, heure_fermeture FROM clubs WHERE nom_club= ?");
 $query->execute([$club]);
 $heure_club = $query->fetch();
+
 $heure_ouverture = $heure_club['heure_ouverture'];
 $heure_fermeture = $heure_club['heure_fermeture'];
 
 ?>
 <h2>Sélection de date et d'horaire</h2>
 
-<form action="reservation.php" method="post">
+<form action="action_reservation.php" method="post">
+    <!-- Champs cachés permettent de transmettre à la page action les informations déjà poster avant -->
+    <input type="hidden" name="club" value="<?php echo htmlspecialchars($club); ?>">
+    
+    <!-- Champ caché pour la discipline -->
+    <input type="hidden" name="discipline" value="<?php echo htmlspecialchars($discipline); ?>">
+    
+    <!-- Champ caché pour l'installation -->
+    <input type="hidden" name="installation" value="<?php echo htmlspecialchars($installation); ?>">
+
+
     <label for="date">Date :</label>
     <input type="text" id="date" name="date" placeholder="Sélectionnez une date" required>
 
     <label for="heure">Heure :</label>
     <input type="time" id="heure" name="heure" required>
 
+    <label for="duree">Durée :</label>
+    <select name="duree", id="duree">
+        <option value="">Sélectionner une durée</option>
+        <option value="00:30:00">30min</option>
+        <option value="01:00:00">1h</option>
+        <option value="01:30:00">1h30</option>
+        <option value="02:00:00">2h</option>
+        <?php 
+            // Vérification des droits de l'utilisateur permet aux admins de reserver plus longtemps
+            $req = $bdd->prepare("SELECT administrateur FROM inscription WHERE id_utilisateur = ?");
+            $req->execute(array($id_utilisateur));
+            
+            while ($row = $req->fetch()) {
+                if ($row['administrateur'] === 1) {
+                    ?>
+                    <option value="03:00:00">3h</option>
+                    <option value="04:00:00">4h</option>
+                    <option value="05:00:00">5h</option>
+                    <option value="06:00:00">6h</option>
+                    <option value="07:00:00">7h</option>
+                    <?php
+                }
+            }
+            
+        ?>
+
+    </select>
     <button type="submit">Soumettre</button>
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    // Tableau des dates à désactiver
+    // Tableau des dates à désactiver converti pour le javascript
     var liste_dates_totales = <?php echo json_encode($liste_dates_totales); ?>;
     
-    // Initialisation de Flatpickr
+    // Initialisation de Flatpickr pour la date
     flatpickr("#date", {
         enableTime: false,
         dateFormat: "Y-m-d",
@@ -185,11 +233,11 @@ $heure_fermeture = $heure_club['heure_fermeture'];
 </script>
     
 <script>
-    // Récupération des horaires d'ouverture et de fermeture du club depuis PHP
+    // Récupération des horaires d'ouverture et de fermeture du club depuis PHP vers Javascript
     var heureOuverture = "<?php echo $heure_ouverture; ?>";
     var heureFermeture = "<?php echo $heure_fermeture; ?>";
 
-    // Initialisation de Flatpickr pour le champ d'heure
+    // Initialisation de Flatpickr pour l'heure
     flatpickr("#heure", {
         enableTime: true,
         noCalendar: true,
@@ -201,7 +249,7 @@ $heure_fermeture = $heure_club['heure_fermeture'];
 
 
     <?php
-    // Vérification des droits de l'utilisateur
+    // Vérification des droits de l'utilisateur pour permettre l'acces a la page admin pour les admins
     $req = $bdd->prepare("SELECT administrateur FROM inscription WHERE id_utilisateur = ?");
     $req->execute(array($id_utilisateur));
     
