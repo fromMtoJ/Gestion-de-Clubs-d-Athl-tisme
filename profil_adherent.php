@@ -42,11 +42,7 @@ $bdd = new PDO('mysql:host=localhost;dbname=donnees', 'root', '');
         $query->execute(array($_SESSION['id_utilisateur']));
         while ($club = $query->fetch()) {
             $nomClub = $club["nom_club"];
-            echo "<option value='$nomClub' ";
-            if (isset($_POST['clubs']) && $_POST['clubs'] == $nomClub) {
-                echo "selected";
-            }
-            echo ">$nomClub</option>";
+            echo "<option value='$nomClub'>$nomClub</option>";
         }
         ?>
     </select>

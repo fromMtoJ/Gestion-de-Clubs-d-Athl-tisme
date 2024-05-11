@@ -50,12 +50,15 @@ CREATE TABLE IF NOT EXISTS exclusion (
 
 CREATE TABLE IF NOT EXISTS reservation (
     id_reservation INT PRIMARY KEY AUTO_INCREMENT,
+    id_club INT,
+    FOREIGN KEY (id_club) REFERENCES clubs(id_club),
     id_installation INT,
     FOREIGN KEY (id_installation) REFERENCES installations(id_installation),
     id_utilisateur INT, 
     FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur),
     date_reservation DATE, 
-    duree_reservation INT
+    heure_debut TIME, 
+    heure_fin TIME
 );
 
 CREATE TABLE IF NOT EXISTS presence (
