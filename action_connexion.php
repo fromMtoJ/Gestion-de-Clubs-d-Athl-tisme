@@ -1,3 +1,14 @@
+<DOCTYPE! html>
+<html lang="fr">
+<head>    
+	<meta charset = 'UTF-8' /> 
+	<meta name = 'viewport' content = 'width=device-width; initial-scale=1.0'/>
+	<link rel = 'stylesheet' href = 'style_1.css'/>
+	<title>connexion</title>
+</head>
+<body>
+
+
 <?php
 // Établir une connexion à la base de données
 $bdd = new PDO('mysql:host=localhost;dbname=donnees', 'root', '');
@@ -24,5 +35,9 @@ if ($user) {
     exit();
 } else {
     echo "Identifiants incorrects";
+    ?>
+    <p>Retenter votre chance, on réfléchit pour son mot de passe et on fait attention aux fautes de frappes !  <a href = "connexion.php"> Se connecter</a></p>
+
+<?php
 }
 
