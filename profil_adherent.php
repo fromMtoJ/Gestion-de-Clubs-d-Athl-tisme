@@ -23,7 +23,7 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
     <div id="sous_titre">
         <div id="sous_titre_1"><?php echo $nom_prenom; ?></div>
     </div>
-
+    <p><a href = "deconnexion.php">Se déconnecter</a></p>
     <h2>Réservation</h2>
     <form id="reservationForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
     Club :
