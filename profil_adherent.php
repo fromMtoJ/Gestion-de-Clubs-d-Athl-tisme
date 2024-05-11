@@ -106,5 +106,6 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
         }
     }
     ?>
+    <a href = "profil_admin.php">Cote_admin</a></p>
 </body>
 </html>

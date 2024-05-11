@@ -7,9 +7,9 @@ USE donnees;
 
 CREATE TABLE IF NOT EXISTS clubs (
     id_club INT PRIMARY KEY AUTO_INCREMENT,
-    nom_club VARCHAR(25)
-    `heure_ouverture` time DEFAULT NULL,
-    `heure_fermeture` time DEFAULT NULL,
+    nom_club VARCHAR(25),
+    heure_ouverture time DEFAULT NULL,
+    heure_fermeture time DEFAULT NULL
 );
 CREATE TABLE IF NOT EXISTS disciplines(
     id_discipline INT PRIMARY KEY AUTO_INCREMENT,
