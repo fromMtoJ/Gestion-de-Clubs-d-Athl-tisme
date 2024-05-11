@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS reservation (
     date_debut_reservation DATE, 
     heure_debut_reservation TIME, 
     date_fin_reservation DATE, 
-    heure_fin_reservation TIME
+    heure_fin_reservation TIME,
     blocage BOOLEAN DEFAULT 0
 );
 

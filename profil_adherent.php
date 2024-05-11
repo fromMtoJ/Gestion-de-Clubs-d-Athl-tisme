@@ -25,8 +25,17 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
     </div>
     <p><a href = "deconnexion.php">Se déconnecter</a></p>
     <h2>Réservation</h2>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sélection de date et d'horaire</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.6/flatpickr.min.css">
+</head>
+<body>
     <form id="reservationForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
-    Club :
+    <span>Club :</span>
     <select name="clubs" id="clubs" onchange="this.form.submit()">
         <option value="">Sélectionnez un club</option>
         <?php
@@ -42,7 +51,7 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
         }
         ?>
     </select>
-    <div>discipline : </div>
+    <span>discipline : </span>
     <select name="disciplines" id="disciplines" onchange="this.form.submit()">
         <option value="">Sélectionnez une discipline</option>
         <?php
@@ -67,34 +76,77 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
         }
         ?>
     </select>
+   <span>installations :</span> 
+    <select name="installations" id="installations">
+        <option value="">Séléctionnez une installation</option>
+        <?php
+        if (isset($_POST['disciplines']) && !empty($_POST['disciplines'])) {
+            $discipline_selected = $_POST["disciplines"];
+            $query = $bdd->prepare("
+                SELECT nom_installation FROM installations i
+                INNER JOIN disciplines d ON i.id_discipline = d.id_discipline
+                WHERE d.type_discipline = ?");
+            $query->execute(array($discipline_selected));
+            while ($installation = $query->fetch()) {
+                $nom_installation = $installation["nom_installation"];
+                echo "<option value='$nom_installation'>$nom_installation</option>";
+            }
+        } else {
+            echo "pas de discipline enregistré";
+        }
+        ?>
+    </select>
+    <input type="submit" value="Choisir">
+    </form>
+    <br><br>
+   
+    
+    <?php
+    $club = $_POST["clubs"];
+    $discipline = $_POST["disciplines"];
+    $installation = $_POST["installations"];
+    
+
+?>
+
+
+<h2>Sélection de date et d'horaire</h2>
+
+<form action="reservation.php" method="post">
+    <label for="date">Date :</label>
+    <input type="text" id="date" name="date" placeholder="Sélectionnez une date" required>
+
+    <label for="heure">Heure :</label>
+    <input type="time" id="heure" name="heure" required>
+
+    <button type="submit">Soumettre</button>
 </form>
 
 
-        
-        installations : 
-        <select name="installations" id="installations">
-            <option value="">Séléctionnez une installation</option>
-            <?php
-            if (isset($_POST['disciplines']) && !empty($_POST['disciplines'])) {
-                $discipline_selected = $_POST["disciplines"];
-                $query = $bdd->prepare("
-                    SELECT nom_installation FROM installations i
-                    INNER JOIN disciplines d ON i.id_discipline = d.id_discipline
-                    WHERE d.type_discipline = ?");
-                $query->execute(array($discipline_selected));
-                while ($installation = $query->fetch()) {
-                    $nom_installation = $installation["nom_installation"];
-                    echo "<option value='$nom_installation'>$nom_installation</option>";
-                }
-            } else {
-                echo "pas de discipline enregistré";
-            }
-            ?>
-        </select>
-        <br><br>
-        <input type="submit" value="Réserver">
-    </form>
-    
+<?php
+    $query = $bdd->prepare("SELECT id_utilisateur , nom FROM utilisateur WHERE email = ? AND mdp = ?");
+    $query->execute([$email, $mdp]);
+    $user = $query->fetch();
+?>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.6/flatpickr.min.js"></script>
+<script>
+    flatpickr("#date", {
+        enableTime: false, // Si vous voulez inclure l'heure, mettez cette option à true
+        dateFormat: "Y-m-d", // Format de la date
+        minDate: "today", // Empêche de sélectionner une date antérieure à aujourd'hui
+        defaultDate: "today", // Date par défaut (aujourd'hui)
+        disable: [ // Liste des dates et heures à désactiver
+
+            "2024-05-20", // Désactiver une date spécifique
+            { from: "09:00", to: "12:00" }, // Désactiver une plage horaire spécifique
+            { from: "14:00", to: "18:00" }
+        ]
+    });
+</script>
+
     <?php
     // Vérification des droits de l'utilisateur
     $req = $bdd->prepare("SELECT administrateur FROM inscription WHERE id_utilisateur = ?");
