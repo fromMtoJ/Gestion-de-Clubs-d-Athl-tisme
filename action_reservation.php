@@ -20,8 +20,24 @@ $heure_deb = $_POST["heure"];
 $date = $_POST["date"];
 $duree = $_POST["duree"];
 
+// Convertir la durée en secondes
+$duree_seconds = strtotime($duree) - strtotime('00:00:00');
 
-$heure_f = date('H:i:s', strtotime($heure_deb) + strtotime($duree));
+try {
+    // Créer un objet DateTime pour l'heure de début
+    $heure_deb_obj = new DateTime($heure_deb);
+
+    // Ajouter la durée en secondes à l'heure de début pour obtenir l'heure de fin
+    $heure_deb_obj->add(new DateInterval('PT' . $duree_seconds . 'S'));
+
+    // Récupérer l'heure de fin au format souhaité
+    $heure_f = $heure_deb_obj->format('H:i:s');
+} catch (Exception $e) {
+    // Gérer les erreurs
+    echo "Erreur lors du calcul de l'heure de fin : " . $e->getMessage();
+}
+
+
 // Vérification des réservations existantes pour cette plage horaire
 $query = $bdd->prepare("SELECT heure_debut_reservation, heure_fin_reservation FROM reservation r INNER JOIN installations i ON i.id_installation = r.id_installation WHERE nom_installation = ? AND (heure_debut_reservation < ? AND heure_fin_reservation > ?)");
 $query->execute([$installation, $heure_deb, $heure_f]);
