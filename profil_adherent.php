@@ -107,9 +107,45 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
     $installation = $_POST["installations"];
     
 
+?><?php
+// Fonction pour récupérer les dates bloquées depuis la base de données
+$query = $bdd->prepare("SELECT date_debut_reservation, date_fin_reservation FROM reservation r 
+INNER JOIN installations i ON i.id_installation = r.id_installation WHERE nom_installation = ? AND blocage = ?");
+$query->execute([$installation, 1]);
+$reservations = $query->fetchAll();
+
+// Liste des dates bloquées
+$dates_bloquees = [];
+
+foreach ($reservations as $reservation) {
+    // Convertir les dates en objets DateTime
+    $date_deb = new DateTime($reservation['date_debut_reservation']);
+    $date_fin = new DateTime($reservation['date_fin_reservation']);
+
+    // Ajouter les dates à la liste
+    while ($date_deb <= $date_fin) {
+        $dates_bloquees[] = $date_deb->format('Y-m-d');
+        $date_deb->modify('+1 day');
+    }
+}
+
+
+// Liste pour stocker toutes les dates bloquées
+$liste_dates_totales = [];
+
+// Boucle pour traiter chaque date bloquée
+foreach ($dates_bloquees as $date_bloquee) {
+    // Ajoutez chaque date bloquée à la liste des dates à désactiver
+    $liste_dates_totales[] = $date_bloquee;
+}
 ?>
+<?php
+$query = $bdd->prepare("SELECT heure_debut_reservation, heure_fin_reservation FROM reservation r 
+INNER JOIN installations i ON i.id_installation = r.id_installation WHERE nom_installation = ? AND blocage = ?");
+$query->execute([$installation, 1]);
+$heures = $query->fetchAll();
 
-
+?>
 <h2>Sélection de date et d'horaire</h2>
 
 <form action="reservation.php" method="post">
@@ -122,30 +158,21 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
     <button type="submit">Soumettre</button>
 </form>
 
-
-<?php
-    $query = $bdd->prepare("SELECT id_utilisateur , nom FROM utilisateur WHERE email = ? AND mdp = ?");
-    $query->execute([$email, $mdp]);
-    $user = $query->fetch();
-?>
-
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.6/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    flatpickr("#date", {
-        enableTime: false, // Si vous voulez inclure l'heure, mettez cette option à true
-        dateFormat: "Y-m-d", // Format de la date
-        minDate: "today", // Empêche de sélectionner une date antérieure à aujourd'hui
-        defaultDate: "today", // Date par défaut (aujourd'hui)
-        disable: [ // Liste des dates et heures à désactiver
+    // Tableau des dates à désactiver
+    var liste_dates_totales = <?php echo json_encode($liste_dates_totales); ?>;
 
-            "2024-05-20", // Désactiver une date spécifique
-            { from: "09:00", to: "12:00" }, // Désactiver une plage horaire spécifique
-            { from: "14:00", to: "18:00" }
-        ]
+    // Initialisation de Flatpickr
+    flatpickr("#date", {
+        enableTime: false,
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        defaultDate: "today",
+        disable: liste_dates_totales
     });
 </script>
+
 
     <?php
     // Vérification des droits de l'utilisateur
