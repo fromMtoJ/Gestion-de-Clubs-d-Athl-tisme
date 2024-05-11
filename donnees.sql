@@ -58,8 +58,9 @@ CREATE TABLE IF NOT EXISTS reservation (
     FOREIGN KEY (id_installation) REFERENCES installations(id_installation),
     id_utilisateur INT, 
     FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur),
-    date_reservation DATE, 
+    date_debut_reservation DATE, 
     heure_debut_reservation TIME, 
+    date_fin_reservation DATE, 
     heure_fin_reservation TIME
     blocage BOOLEAN DEFAULT 0
 );
