@@ -69,11 +69,28 @@ if ($rowCount > 0) {
     } else {
         // Insertion réussie
         echo "Réservation effectuée avec succès !";
-         
+        $query = $bdd->prepare("SELECT id_reservation FROM reservation WHERE id_club = ? AND id_installation = ? AND id_utilisateur = ? AND date_debut_reservation = ? AND heure_debut_reservation = ? AND date_fin_reservation = ? AND heure_fin_reservation = ?");
+        $query->execute([$id_club, $id_installation, $id_utilisateur, $date, $heure_deb, $date, $heure_f]);
+        $id_reservation = $query->fetchColumn();
+        ?>
+        <p>Vous ne serez pas seul ? Merci d'indiquer le nom des autres membres du club. Indiquez guest si votre partenaire ne fait pas partie du club</p>
+        <form action="action_invite.php" method="post">
+                <label for="nom">Partenaire 1:</label>
+                <input type="text" id="nom1" name="nom1" placeholder="Nom partenaire 1" required>
+                <label for="nom">Partenaire 2:</label>
+                <input type="text" id="nom2" name="nom2" placeholder="Nom partenaire 2">
+                <label for="nom">Partenaire 2:</label>
+                <input type="text" id="nom2" name="nom3" placeholder="Nom partenaire 3" >
+                <input type="hidden" name="club" value="<?php echo htmlspecialchars($club); ?>">
+                <input type="hidden" name="id_reservation" value="<?php echo htmlspecialchars($id_reservation); ?>">
+                <button type="submit">Envoyer</button>
+        </form>
+
+
+        <?php 
     }
 }
 ?>
 <p>Retour au profil <a href = "profil_adherent.php">ici</a></p>
-
 </body>
 </html>

@@ -71,6 +71,13 @@ CREATE TABLE IF NOT EXISTS presence (
     id_installation INT,
     FOREIGN KEY (id_installation) REFERENCES installations(id_installation)
 );
+
+CREATE TABLE IF NOT EXISTS invite(
+    id_reservation INT,
+    FOREIGN KEY (id_reservation) REFERENCES reservation(id_reservation),
+    id_utilisateur INT,
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur)
+);
 -- SQLBook: Code
 -- Active: 1713532091000@@127.0.0.1@3306@donnees
 INSERT INTO clubs(nom_club) VALUES ('Belfort Athletic Club'),('Sevenans Athlé'),('Montbéliard Athlétisme');
