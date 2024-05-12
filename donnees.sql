@@ -1,5 +1,5 @@
 -- SQLBook: Code
--- Active: 1713532825295@@127.0.0.1@3306@donnees
+-- Active: 1713532091000@@127.0.0.1@3306@donnees
 -- SQLBook: Code
 
 CREATE DATABASE IF NOT EXISTS donnees;
@@ -80,14 +80,15 @@ CREATE TABLE IF NOT EXISTS invite(
 );
 -- SQLBook: Code
 -- Active: 1713532091000@@127.0.0.1@3306@donnees
-INSERT INTO clubs(nom_club) VALUES ('Belfort Athletic Club'),('Sevenans Athlé'),('Montbéliard Athlétisme');
-
+INSERT INTO clubs(nom_club, heure_ouverture, heure_fermeture) VALUES ('Belfort Athletic Club','08:00:00','22:00:00'),('Sevenans Athlé','07:30:00','21:30:00'),('Montbéliard Athlétisme','09:00:00','22:00:00');
 INSERT INTO disciplines(type_discipline) VALUES ('Course'),('Saut'),('Lancer');
 
 INSERT INTO installations(nom_installation,id_discipline,piste) VALUES
 ('Sautoir de saut en hauteur',2,0),('Sautoir de saut en longueur',2,0),('Sautoir de triple saut',2,0),('Sautoir de saut à la perche',2,0),('Aire de lancer de disque ou marteau',3,0),('Aire de lancer de poids',3,0),('Aire de lancer de javelot',3,0),('Couloir 1',1,1),('Couloir 2',1,1),('Couloir 3',1,1),('Couloir 4',1,1),('Couloir 5 avec haies',1,1)
 
+
 INSERT INTO presence(id_club,id_installation) VALUES (1,1),(1,2),(1,4),(1,6),(1,7),(1,8),(1,9),(1,10),(1,12);
+-- SQLBook: Markup
 
 INSERT INTO utilisateur(nom,prenom,date_de_naissance,email,mdp) VALUES ('BENED','Julie','2005-09-17','julie.bened@utbm.fr','juliebened17'),('BEAUCHAMP','Manon','2005-01-13','manon.beauchamp@utbm.fr','manonbeauchamp13')
 
