@@ -61,3 +61,20 @@ document.getElementById('titre_2_7').addEventListener('click', function() {
     }
 })
 
+document.getElementById('titre_2_8').addEventListener('click', function() {
+  var action8 = document.getElementById('action_8');
+  if (action8.style.display === 'none' || action8.style.display === '') { 
+      action8.style.display = 'block';
+    } else {
+      action8.style.display = 'none';
+  }
+})
+
+document.getElementById('titre_2_9').addEventListener('click', function() {
+  var action9 = document.getElementById('action_9');
+  if (action9.style.display === 'none' || action9.style.display === '') { 
+      action9.style.display = 'block';
+    } else {
+      action9.style.display = 'none';
+  }
+})
