@@ -145,7 +145,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 
 					$req_e = $bdd->prepare("SELECT utilisateur.id_utilisateur,nom,prenom,date_de_naissance FROM utilisateur INNER JOIN inscription ON utilisateur.id_utilisateur = inscription.id_utilisateur WHERE inscription.id_club = $id_club AND (utilisateur.nom LIKE '%$nom_e_a%' OR utilisateur.prenom LIKE '%$prenom_e_a%') AND inscription.est_adherent = 1 ;");
 					$req_e->execute();
-					$options = "<option value=''>Choissisez un inscrit</option>";
+					$options = "<option value=''>Choissisez un adhérent</option>";
 					while ($row = $req_e->fetch()) {
 						$options .= "<option value='" . $row['id_utilisateur']."'>" . $row['nom']. ' ' .$row['prenom']. ' né(e) le '. $row['date_de_naissance']."</option>";
 					}
@@ -153,7 +153,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 						$options = "<option value=''>Aucun adhérent trouvé</option>"; 
 					}
 				} else {
-					$options = "<option value=''>Choissisez un inscrit</option>";
+					$options = "<option value=''>Choissisez un adhérent</option>";
 				}
 				?>
 
@@ -661,6 +661,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 							$stmt_installation->bindParam(':installation', $id_installation);
 							$stmt_installation->execute();
 							$installation_name = $stmt_installation->fetchColumn();
+							$_SESSION['id_installation'] = $id_installation;
 							$_SESSION['installation_name'] = $installation_name;
 							}
 					?>
@@ -770,13 +771,20 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 						<?php
 						$heure_debut_da = strtotime($heure_debut);
 						$heure_fin_da = strtotime($heure_fin) - 3600; 
+						$available_time_slots = [];
 						while ($heure_debut_da <= $heure_fin_da) {
 							for ($minute_da = 0; $minute_da < 60; $minute_da += 15) {
-								echo "<option value='" . date('H:i', $heure_debut_da + $minute_da * 60) . "'>" . date('H:i', $heure_debut_da + $minute_da * 60) . "</option>";
+								$time_slot = date('H:i', $heure_debut_da + $minute_da * 60);
+								if (!in_array($time_slot, $available_time_slots)) {
+									$available_time_slots[] = $time_slot;
+									echo "<option value='" . $time_slot . "'>" . $time_slot . "</option>";
+								}
 							}
 							$heure_debut_da += 900;
 						}
 						?>
+					</select>
+					</select>
 					</select>
 					
 					<label for="date_fin_a">Date de fin :</label>
@@ -785,33 +793,35 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					<label for="heure_fin_a">Heure de fin :</label>
 					<select id="heure_fin_a" name="heure_fin_a" required>
 						<?php
-						$heure_debut_fa = strtotime($heure_debut) +900;
+						$heure_debut_fa = strtotime($heure_debut) + 900;
 						$heure_fin_fa = strtotime($heure_fin) - 3600; 
+						$interval = 15 * 60; // 15 minutes
+						$available_time_slots = [];
 						while ($heure_debut_fa <= $heure_fin_fa + 900) {
-							for ($minute_fa = 0; $minute_fa < 60; $minute_fa += 15) {
-								echo "<option value='" . date('H:i', $heure_debut_fa + $minute_fa * 60) . "'>" . date('H:i', $heure_debut_fa + $minute_fa * 60) . "</option>";
-							}
-							$heure_debut_fa += 900;
+							$time_slot = date('H:i', $heure_debut_fa);
+								if (!in_array($time_slot, $available_time_slots)) {
+									$available_time_slots[] = $time_slot;
+									echo "<option value='" . $time_slot . "'>" . $time_slot . "</option>";
+								}
+							$heure_debut_fa += $interval;
 						}
 						?>
+					</select>
 					</select>
 				<input type="submit" name="annuler_reservation" value="Annuler la réservation">
 				</form>
 				<?php
 				if (isset($_POST['annuler_reservation'])) {
+					$id_installation = $_SESSION['id_installation'];
 					$date_debut = $_POST['date_debut_a'];
-					$heure_debut = $_POST['heure_debut_a'];
+					$heure_debut = date('H:i:s', strtotime($_POST['heure_debut_a'])) ;
 					$date_fin = $_POST['date_fin_a'];
-					$heure_fin = $_POST['heure_fin_a'];
+					$heure_fin = date('H:i:s', strtotime($_POST['heure_fin_a'])) ;
 
-					$sql_delete_reservation = "DELETE FROM reservation WHERE id_club = :id_club AND id_installation = :id_installation AND date_debut_reservation = :date_debut AND heure_debut_reservation = :heure_debut AND date_fin_reservation = :date_fin AND heure_fin_reservation = :heure_fin";
+					$sql_delete_reservation = "DELETE FROM reservation WHERE id_club = $id_club AND id_installation = $id_installation AND date_debut_reservation = '$date_debut' AND heure_debut_reservation = '$heure_debut' AND date_fin_reservation = '$date_fin' AND heure_fin_reservation =  '$heure_fin'";
 					$stmt_delete_reservation = $bdd->prepare($sql_delete_reservation);
-					$stmt_delete_reservation->bindParam(':id_club', $id_club);
-					$stmt_delete_reservation->bindParam(':id_installation', $id_installation);
-					$stmt_delete_reservation->bindParam(':date_debut', $date_debut);
-					$stmt_delete_reservation->bindParam(':heure_debut', $heure_debut);
-					$stmt_delete_reservation->bindParam(':date_fin', $date_fin);
-					$stmt_delete_reservation->bindParam(':heure_fin', $heure_fin);
+					$sqlQuery = $stmt_delete_reservation->queryString;
+					echo $sqlQuery;
 					if ($stmt_delete_reservation->execute()) {
 						echo "<script>alert('Réservation annulée avec succès !');</script>";
 					} else {
