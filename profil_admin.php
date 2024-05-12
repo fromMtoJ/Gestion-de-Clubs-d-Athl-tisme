@@ -477,13 +477,13 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 							<label for="heure_debut_b">Heure de fin :</label>
 							<select id="heure_debut_b" name="heure_debut_b" required>
 								<?php
-								$heure_debut_fd = strtotime($heure_debut);
-								$heure_fin_fd = strtotime($heure_fin) - 3600; 
-								while ($heure_debut_fd <= $heure_fin_fd) {
-									for ($minute_fd = 0; $minute_fd < 60; $minute_fd += 15) {
-										echo "<option value='" . date('H:i', $heure_debut_fd + $minute_fd * 60) . "'>" . date('H:i', $heure_debut_fd + $minute_fd * 60) . "</option>";
+								$heure_debut_f1 = strtotime($heure_debut);
+								$heure_fin_f1 = strtotime($heure_fin) - 3600; 
+								while ($heure_debut_f1 <= $heure_fin_f1) {
+									for ($minute_f1 = 0; $minute_f1 < 60; $minute_f1 += 15) {
+										echo "<option value='" . date('H:i', $heure_debut_f1 + $minute_f1* 60) . "'>" . date('H:i', $heure_debut_f1 + $minute_f1 * 60) . "</option>";
 									}
-									$heure_debut_fd += 900;
+									$heure_debut_f1 += 900;
 								}
 								?>
 							</select>
@@ -494,9 +494,9 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 							<label for="heure_fin_b">Heure de fin :</label>
 							<select id="heure_fin_b" name="heure_fin_b" required>
 								<?php
-								$heure_debut_fd = strtotime($heure_debut) +900;
-								$heure_fin_fd = strtotime($heure_fin) - 3600; 
-								while ($heure_debut_fd <= $heure_fin_fd + 900) {
+								$heure_debut_f2 = strtotime($heure_debut) +900;
+								$heure_fin_f2 = strtotime($heure_fin) - 3600; 
+								while ($heure_debut_f2 <= $heure_fin_f2 + 900) {
 									for ($minute_fd = 0; $minute_fd < 60; $minute_fd += 15) {
 										echo "<option value='" . date('H:i', $heure_debut_fd + $minute_fd * 60) . "'>" . date('H:i', $heure_debut_fd + $minute_fd * 60) . "</option>";
 									}
@@ -689,41 +689,40 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					echo "<div class = 'champ'>Réservations de l'installation : " . $_SESSION['installation_name'] . "</div>";
 					echo "Semaine du " . date('d/m', strtotime($j_debut_semaine)) . " au " . date('d/m', strtotime($j_fin_semaine));
 				
-
-					// Generate the time slots
-					$time_slots = [];
-					$start_time = strtotime($heure_debut); // Convert the time string to a timestamp
-					$end_time = strtotime($heure_fin); // Convert the time string to a timestamp
-					$interval = 15 * 60; // 15 minutes
-					$current_time = $start_time;
-					while ($current_time <= $end_time) {
-						$time_slots[] = date('H:i', $current_time);
-						$current_time += $interval;
+					
+					//Générer les créneaux horaires
+					$creneaux_horaires = [];
+					$heure_debut = strtotime($heure_debut); 
+					$heure_fin = strtotime($heure_fin); 
+					$intervalle = 15 * 60; 
+					$heure_actuelle = $heure_debut;
+					while ($heure_actuelle <= $heure_fin) {
+						$creneaux_horaires[] = date('H:i', $heure_actuelle);
+						$heure_actuelle += $intervalle;
 					}
 
-					// Query the reservations for the selected installation and week
+					// Récupérer les réservations
+					$id_installation = $_SESSION['id_installation'];
 					$sql = "SELECT date_debut_reservation, heure_debut_reservation, date_fin_reservation, heure_fin_reservation
 							FROM reservation
-							WHERE id_installation = :installation_id
-						AND date_debut_reservation BETWEEN :start_date AND :end_date
-						AND id_club = :id_club";
+							WHERE id_installation = $id_installation
+						AND date_debut_reservation BETWEEN '$j_debut_semaine' AND '$j_fin_semaine'
+						AND id_club = $id_club;";
 					$stmt = $bdd->prepare($sql);
-					$stmt->bindParam(':installation_id', $id_installation);
-					$stmt->bindParam(':start_date', $j_debut_semaine);
-					$stmt->bindParam(':end_date', $j_fin_semaine);
-					$stmt->bindParam(':id_club', $id_club);
+					$sqlQuery = $stmt->queryString;
+					echo $sqlQuery;
 					$stmt->execute();
 					$reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 					foreach ($reservations as $item) {
-						echo $item . ' '; // Output: apple banana orange
+						echo $item . ' '; 
 					}
 
 					// Create the timetable
-					$timetable = [];
-					$current_date = $j_debut_semaine;
-					while ($current_date <= $j_fin_semaine) {
-						$timetable[$current_date] = array_fill_keys($time_slots, 'o');
-						$current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
+					$tableau = [];
+					$date_actuelle = $j_debut_semaine;
+					while ($date_actuelle <= $j_fin_semaine) {
+						$tableau[$date_actuelle] = array_fill_keys($creneaux_horaires, 'o');
+						$date_actuelle = date('Y-m-d', strtotime($date_actuelle . ' +1 day'));
 					}
 
 					// Mark the reserved time slots in the timetable
@@ -732,59 +731,53 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 						$end_datetime = $reservation['date_fin_reservation'] . ' ' . $reservation['heure_fin_reservation'];
 						$start_time = strtotime($start_datetime);
 						$end_time = strtotime($end_datetime);
-						$current_time = $start_time;
-						while ($current_time < $end_time) {
-							$current_date = date('Y-m-d', $current_time);
-							$current_slot = date('H:i', $current_time);
-							$timetable[$current_date][$current_slot] = 'x';
-							$current_time += $interval;
+						$heure_actuelle = $start_time;
+						while ($heure_actuelle < $end_time) {
+							$heure_actuelle = date('Y-m-d', $heure_actuelle);
+							$creneau_actuel = date('H:i', $heure_actuelle);
+							$tableau[$date_actuelle][$creneau_actuel] = 'x';
+							$heure_actuelle += $intervalle;
 						}
 					}
 
 					// Display the timetable
 					echo "<table>";
 					echo "<tr><th>Time</th>";
-					foreach ($timetable as $date => $slots) {
-						$dayOfWeek = date('N', strtotime($date));
-						$dayOfWeekName = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][$dayOfWeek - 1];
-						echo "<th>$dayOfWeekName " . date('d/m', strtotime($date)) . "</th>";
+					foreach ($tableau as $date => $creneaux) {
+						$jours_semaines = date('N', strtotime($date));
+						$noms_jours_semaines = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][$jours_semaines - 1];
+						echo "<th>$noms_jours_semaines " . date('d/m', strtotime($date)) . "</th>";
 					}
 					echo "</tr>";
-					foreach ($time_slots as $time) {
+					foreach ($creneaux_horaires as $time) {
 						echo "<tr><td>$time</td>";
-						foreach ($timetable as $date => $slots) {
-							echo "<td>{$slots[$time]}</td>";
+						foreach ($tableau as $date => $creneaux) {
+							echo "<td>{$creneaux[$time]}</td>";
 						}
 						echo "</tr>";
 						}
 						echo "</table>";
 				
-				}
+					}
 				
 				?>
 				<form action = 'profil_admin.php' method = 'post'>
 					<label for="date_debut_a">Date de début :</label>
 					<input type="date" id="date_debut_a" name="date_debut_a" required>
 
-					<label for="heure_debut_a">Heure de fin :</label>
+					<label for="heure_debut_a">Heure de début :</label>
 					<select id="heure_debut_a" name="heure_debut_a" required>
 						<?php
-						$heure_debut_da = strtotime($heure_debut);
-						$heure_fin_da = strtotime($heure_fin) - 3600; 
-						$available_time_slots = [];
-						while ($heure_debut_da <= $heure_fin_da) {
-							for ($minute_da = 0; $minute_da < 60; $minute_da += 15) {
-								$time_slot = date('H:i', $heure_debut_da + $minute_da * 60);
-								if (!in_array($time_slot, $available_time_slots)) {
-									$available_time_slots[] = $time_slot;
-									echo "<option value='" . $time_slot . "'>" . $time_slot . "</option>";
-								}
+						$heure_debut_f3 = strtotime($heure_debut);
+						$heure_fin_f3 = strtotime($heure_fin) - 3600; 
+						while ($heure_debut_f3 <= $heure_fin_f3) {
+							for ($minute_f3 = 0; $minute_f3 < 60; $minute_f3 += 15) {
+								echo "<option value='" . date('H:i', $heure_debut_f3 + $minute_f3 * 60) . "'>" . date('H:i', $heure_debut_f3 + $minute_f3 * 60) . "</option>";
 							}
-							$heure_debut_da += 900;
+							$heure_debut_f3 += 900;
+					
 						}
 						?>
-					</select>
-					</select>
 					</select>
 					
 					<label for="date_fin_a">Date de fin :</label>
@@ -793,20 +786,15 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					<label for="heure_fin_a">Heure de fin :</label>
 					<select id="heure_fin_a" name="heure_fin_a" required>
 						<?php
-						$heure_debut_fa = strtotime($heure_debut) + 900;
-						$heure_fin_fa = strtotime($heure_fin) - 3600; 
-						$interval = 15 * 60; // 15 minutes
-						$available_time_slots = [];
-						while ($heure_debut_fa <= $heure_fin_fa + 900) {
-							$time_slot = date('H:i', $heure_debut_fa);
-								if (!in_array($time_slot, $available_time_slots)) {
-									$available_time_slots[] = $time_slot;
-									echo "<option value='" . $time_slot . "'>" . $time_slot . "</option>";
-								}
-							$heure_debut_fa += $interval;
-						}
+						/*$heure_debut_fd = strtotime($heure_debut) +900;
+						$heure_fin_fd = strtotime($heure_fin) - 3600; 
+						while ($heure_debut_fd <= $heure_fin_fd + 900) {
+							for ($minute_fd = 0; $minute_fd < 60; $minute_fd += 15) {
+								echo "<option value='" . date('H:i', $heure_debut_fd + $minute_fd * 60) . "'>" . date('H:i', $heure_debut_fd + $minute_fd * 60) . "</option>";
+							}
+							$heure_debut_fd += 900;
+						}*/
 						?>
-					</select>
 					</select>
 				<input type="submit" name="annuler_reservation" value="Annuler la réservation">
 				</form>
@@ -820,8 +808,6 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 
 					$sql_delete_reservation = "DELETE FROM reservation WHERE id_club = $id_club AND id_installation = $id_installation AND date_debut_reservation = '$date_debut' AND heure_debut_reservation = '$heure_debut' AND date_fin_reservation = '$date_fin' AND heure_fin_reservation =  '$heure_fin'";
 					$stmt_delete_reservation = $bdd->prepare($sql_delete_reservation);
-					$sqlQuery = $stmt_delete_reservation->queryString;
-					echo $sqlQuery;
 					if ($stmt_delete_reservation->execute()) {
 						echo "<script>alert('Réservation annulée avec succès !');</script>";
 					} else {
