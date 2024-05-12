@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS disciplines(
 
 CREATE TABLE IF NOT EXISTS installations (
     id_installation INT PRIMARY KEY AUTO_INCREMENT,
-    nom_installation VARCHAR(25), 
+    nom_installation VARCHAR(60), 
     id_discipline INT,
     FOREIGN KEY (id_discipline) REFERENCES disciplines(id_discipline),
     piste BOOLEAN
