@@ -4,7 +4,7 @@
 	<meta charset = 'UTF-8' /> 
 	<meta name = 'viewport' content = 'width=device-width' initial-scale='1.0'/>
 	<title>Profil Administateur</title>
-	<link rel="stylesheet" href="style_2.css">
+	<link rel="stylesheet" href="style_admin.css">
 </head>
 <body>
 
@@ -38,7 +38,10 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 
 
 <div id = 'sous_titre'>
-	<div id = 'sous_titre_1'><?php echo $row_n_p['prenom']." ". $row_n_p['nom']?></div><div id = 'sous_titre_2'><?php echo $row_nc['nom_club']?></div>
+	<div id = 'sous_titre_1'><?php echo $row_n_p['prenom']." ". $row_n_p['nom']?></div>
+	<div id = 'sous_titre_2'><a href='profil_adherent.php'>Profil Adhérent</a></div>
+	<div id = 'sous_titre_3'><?php echo $row_nc['nom_club']?></div>
+	<div id = 'sous_titre_4'><a href = "deconnexion.php">Déconnexion</a></div>
 </div>
 
 
@@ -682,6 +685,8 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					</div>
 					<div class = 'bouton'> <input type="submit" name="valider" value="Valider" /></div>
 				</form>
+		</div>
+	</div>
 
 				<?php
 				if (isset($_GET['valider'])) {
@@ -699,8 +704,8 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					$j_debut_semaine = date('Y-m-d', strtotime($annee_semaine . 'W' . $num_semaine . '1'));
 					$j_fin_semaine = date('Y-m-d', strtotime($annee_semaine . 'W' . $num_semaine . '7'));
 
-					echo "<div class = 'champ'>Réservations de l'installation : " . $_SESSION['installation_name'] . "</div>";
-					echo "Semaine du " . date('d/m', strtotime($j_debut_semaine)) . " au " . date('d/m', strtotime($j_fin_semaine));
+					echo "<div class = 'sous_titre_4'>Réservations de l'installation : " . $_SESSION['installation_name'] . "</div>";
+					echo "<div class = 'sous_titre_4'>Semaine du " . date('d/m', strtotime($j_debut_semaine)) . " au " . date('d/m', strtotime($j_fin_semaine))."</div>";
 				
 					
 					$creneaux_horaires = [];
@@ -743,6 +748,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 						}
 					}
 
+					echo "<div class='table-container'>";
 					echo "<table>";
 					echo "<tr><th>Heures</th>";
 					foreach ($tableau as $date => $creneau) {
@@ -754,18 +760,16 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					foreach ($creneaux_horaires as $temps) {
 						echo "<tr><td>$temps</td>";
 						foreach ($tableau as $date => $creneau) {
-							echo "<td>{$creneau[$temps]}</td>";
+							$value = $creneau[$temps] === 'x' ? 'x' : 'o';
+							echo "<td data-value='$value'>{$creneau[$temps]}</td>";
 						}
 						echo "</tr>";
 						}
 						echo "</table>";
+						echo "</div>";
 				
 				}
 				?>
-
-
-		</div>
-	</div>
 
 	<!--Annuler une réservation-->
 	<div class = 'section'>
@@ -778,6 +782,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 		<div id = 'action_7'>
 			<div class='champ'>Choisir une installation :</div>
 				<form action='profil_admin.php' method='post'>
+					
 					<?php	
 
 					$req_t_d_4 = $bdd->prepare("SELECT type_discipline FROM disciplines;");
@@ -815,6 +820,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					$options = "<option value=''>Sélectionnez une installation</option>";
 				}
 				?>
+
 				<form action='profil_admin.php' method='post'>
 					<div class = 'champ'>
 					<label for="installation">Installation :</label>
@@ -822,11 +828,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 						<?php echo $options; ?>
 					</select>
 					</div>
-					<div class='bouton'><input type="submit" name="choix_3" value="Choisir"></div>
-				</form>
-
-
-				<form action = 'profil_admin.php' method = 'post'>
+			
 					<div class='champ'>
 						<label for="date_debut_a">Date de début :</label>
 						<input type="date" id="date_debut_a" name="date_debut_a" required>
@@ -835,7 +837,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					<div class='champ'>
 						<label for="heure_debut_a">Heure de début :</label>
 						<select id="heure_debut_a" name="heure_debut_a" required>
-					</div>
+					
 						<?php
 						$heure_debut_f3 = strtotime($heure_debut);
 						$heure_fin_f3 = strtotime($heure_fin) - 3600; 
@@ -848,6 +850,7 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 						}
 						?>
 					</select>
+					</div>
 					
 					<div class='champ'>
 						<label for="date_fin_a">Date de fin :</label>
@@ -870,26 +873,25 @@ $bdd = new PDO("mysql:host=localhost;dbname=donnees;charset=utf8", "root", "");
 					</select>
 					</div>
 
-				<div class = bouton><input type="submit" name="annuler_reservation" value="Annuler la réservation"> </div>
-				</div>
+					<div class = bouton><input type="submit" name="annuler_reservation" value="Annuler la réservation"> </div>
+					</form>
+				
+			</div>
 
-				</form>
+
 				<?php
-				if (isset($_POST['annuler_reservation'])) {
-					$id_installation = $_SESSION['id_installation'];
+				if (isset($_POST['annuler_reservation']) && isset($_POST['installation'])){
+					$id_installation = $_POST['installation'];
 					$date_debut = $_POST['date_debut_a'];
 					$heure_debut = date('H:i:s', strtotime($_POST['heure_debut_a'])) ;
 					$date_fin = $_POST['date_fin_a'];
 					$heure_fin = date('H:i:s', strtotime($_POST['heure_fin_a'])) ;
-					echo $id_installation;
 					$sql_suppr_res = $bdd->prepare("DELETE FROM reservation WHERE id_club = $id_club AND id_installation = $id_installation AND date_debut_reservation = '$date_debut' AND heure_debut_reservation = '$heure_debut' AND date_fin_reservation = '$date_fin' AND heure_fin_reservation =  '$heure_fin';");
-					echo $sql_suppr_res->queryString;
-
-					/*if ($sql_suppr_res->execute()) {
+					if ($sql_suppr_res->execute()) {
 						echo "<script>alert('Réservation annulée avec succès !');</script>";
 					} else {
 						echo "<script>alert('La réservation n'a pas pu être annulée.');</script>";
-						}*/
+						}
 				}
 				?>
 		</div>

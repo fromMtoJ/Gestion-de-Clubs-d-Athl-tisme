@@ -1,5 +1,4 @@
 
-/*page admin et statistiques*/
 
 @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&display=swap');
 *{
@@ -26,7 +25,6 @@ body, html {
     font-size: 25px;
     padding-top : 2%;
     display: flex;
-    align-items: center;
     width: 100%;
 }
 
@@ -37,10 +35,33 @@ body, html {
 }
 
 #sous_titre_2 {
-    text-align: right;
-    margin-left: auto;
-    padding-right: 3%;
+    text-decoration-color: #681da8;
+    color :#681da8;
+    padding-left : 3%;
     text-decoration: underline;
+
+}
+
+#sous_titre_3 {
+    text-align: right;
+    padding-left: 50%;
+    text-decoration: underline;
+}
+
+#sous_titre_4 {
+    color :#681da8;
+    text-decoration-color: #681da8;
+    text-align: right;
+    padding-left: 4%;
+    text-decoration: underline;
+    
+}
+
+.sous_titre_4 {
+    margin-top: 4%;
+    margin-bottom: 4%; 
+    font-size: 20px;
+    padding-right: 70%;
 }
 
 .champ {
@@ -197,6 +218,35 @@ a:active {
     color :black
     }
 
+      
+.table-container { 
+    width: 100%; 
+    display: flex;
+    justify-content: center;
+  
+}
 
+table {
+    border-collapse: collapse;
+    width: 90%;
+    }
+    
 
+table th {
 
+background-color: #e6e5e5;
+border: 1px solid #dddddd;
+padding: 8px;
+text-align: left;
+}
+
+table td {
+border: 1px solid #dddddd;
+padding: 8px;
+text-align: left;
+}
+
+table td[data-value='x'] {
+    background-color: rgb(201, 123, 123);
+    color: white;
+  }

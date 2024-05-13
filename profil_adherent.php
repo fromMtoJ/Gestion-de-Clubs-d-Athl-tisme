@@ -17,14 +17,27 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réservation</title>
-    <link rel="stylesheet" href="style_2.css"/>
+    <link rel="stylesheet" href="style_reservation.css"/>
 </head>
 <body>
     <div id="sous_titre">
         <div id="sous_titre_1"><?php echo $nom_prenom; ?></div>
+        <?php
+    // Vérification des droits de l'utilisateur pour permettre l'acces a la page admin pour les admins
+    $req = $bdd->prepare("SELECT administrateur FROM inscription WHERE id_utilisateur = ?");
+    $req->execute(array($id_utilisateur));
+    
+    while ($row = $req->fetch()) {
+        if ($row['administrateur'] === 1) {
+            echo "<div id = 'sous_titre_2'><a href='profil_admin.php'>Tableau de bord</a></div>";
+        }
+    }
+    ?>
+    <div id = 'sous_titre_3'><a href = "deconnexion.php">Se déconnecter</a></div>
+
     </div>
-    <p><a href = "deconnexion.php">Se déconnecter</a></p>
-    <h2>Réservation</h2>
+    
+ 
     <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,10 +47,12 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.6/flatpickr.min.css">
 </head>
 <body>
+    <div id = 'contenant'>
+        <h1>Réservation</h1>
     <!-- permet de poster les infos sur la meme page après chaque changement d'état -->    
     <form id="reservationForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
 
-    <span>Club :</span>
+    <div class = 'section'><span>Club :</span>
     <select name="clubs" id="clubs" onchange="this.form.submit()"> 
      <!-- gère le changement d'état -->    
         <option value="">Sélectionnez un club</option>
@@ -55,7 +70,8 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
         }
         ?>
     </select>
-    <span>discipline : </span>
+    </div>
+    <div class = 'section'><span>Discipline : </span>
     <select name="disciplines" id="disciplines" onchange="this.form.submit()">
         <option value="">Sélectionnez une discipline</option>
         <?php
@@ -81,7 +97,9 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
         }
         ?>
     </select>
-   <span>installations :</span> 
+    </div>
+
+   <div class = 'section'><span>Installation :</span> 
     <select name="installations" id="installations">
         <option value="">Séléctionnez une installation</option>
         <?php
@@ -104,11 +122,11 @@ $nom_prenom = $row_n_p['prenom'] . " " . $row_n_p['nom'];
         }
         ?>
     </select>
+    </div>
     <input type="submit" value="Choisir">
     </form>
-    <br><br>
    
-    
+   
     <?php
     // valeur pretes a etre recuperer evite les bugs de variable indefini
 $club ="";
@@ -179,13 +197,17 @@ $heure_fermeture = $heure_club['heure_fermeture'];
     <!-- Champ caché pour l'installation -->
     <input type="hidden" name="installation" value="<?php echo htmlspecialchars($installation); ?>">
 
-
+    <div class = 'section'>
     <label for="date">Date :</label>
     <input type="text" id="date" name="date" placeholder="Sélectionnez une date" required>
+    </div>
 
+    <div class = 'section'>
     <label for="heure">Heure :</label>
     <input type="time" id="heure" name="heure" required>
+    </div>
 
+    <div class = 'section'>
     <label for="duree">Durée :</label>
     <select name="duree", id="duree">
         <option value="">Sélectionner une durée</option>
@@ -214,6 +236,8 @@ $heure_fermeture = $heure_club['heure_fermeture'];
 
     </select>
     <button type="submit">Soumettre</button>
+    </div>
+    </div>
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -248,16 +272,6 @@ $heure_fermeture = $heure_club['heure_fermeture'];
 </script>
 
 
-    <?php
-    // Vérification des droits de l'utilisateur pour permettre l'acces a la page admin pour les admins
-    $req = $bdd->prepare("SELECT administrateur FROM inscription WHERE id_utilisateur = ?");
-    $req->execute(array($id_utilisateur));
-    
-    while ($row = $req->fetch()) {
-        if ($row['administrateur'] === 1) {
-            echo '<a href="profil_admin.php">Tableau de bord</a>';
-        }
-    }
-    ?>
+   
 </body>
 </html>

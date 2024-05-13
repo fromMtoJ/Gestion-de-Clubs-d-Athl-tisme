@@ -11,34 +11,35 @@ body, html {
     margin: 0; 
 }
 
-body {
-    display: flex;
-    justify-content: center; 
-    align-items: center;
-}
 
 .contenant {
     text-align: center; 
 }
 
 h1 {
-    margin-bottom: 40px; 
+    margin-top: 10%; 
+    margin-bottom: 5%; 
 }
 
 p {
-    margin-top: 20px; 
-    margin-bottom: 20px; 
+    margin-top: 2%; 
+    margin-bottom: 2%; 
 }
 
 .champ_entree {
-    margin-bottom: 10px; 
+    margin-bottom: 2%; 
+    margin-top: 2%; 
+
 }
 
-.case {
-    margin-bottom: 10px; 
+#contenant_1 {
+    padding-top: 2%;
+    display: flex;
+    width: 100%;
+    font-size: 25px;
 }
 
-.autre {
-    margin-top: 10px; 
-    margin-bottom: 10px; 
+#conn {
+    display: inline;
+    padding-left: 10%; 
 }
